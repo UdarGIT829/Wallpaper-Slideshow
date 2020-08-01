@@ -45,7 +45,9 @@ def randomImageFinder(working_dir)
         files.delete($file)
       end #fi
     end #endWhile
-    return files[rand(files.size)]
+    alternatives = files.size
+    p alternatives
+    return [files[rand(files.size)], alternatives]
   rescue
     return "NO FILE FOUND"
   end
@@ -53,11 +55,12 @@ end #endFunction
 
 
 randomImage = randomImageFinder(working_dir)
-if randomImage == "NO FILE FOUND"
+if randomImage[0] == "NO FILE FOUND"
   p "Run imageAnalyzer.py before executing this program"
+elsif randomImage[1] == 1
+  path_to_image = randomImage[0]
 else
   path_to_image = check_last_wall(randomImage, working_dir)
-
-  p "feh --bg-center #{path_to_image}"
-  exec("DISPLAY=:0 feh --bg-center #{path_to_image}")
 end #fi
+p "feh --bg-center #{path_to_image}"
+exec("DISPLAY=:0 feh --bg-center #{path_to_image}")
