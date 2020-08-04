@@ -1,12 +1,13 @@
 # Dependencies: > pip3 install opencv-python numpy matplotlib
 
-import os
-import cv2
-import numpy as np
-import matplotlib.pyplot as plt
-from pathlib import Path
-import time
-import FileHandler
+import sys #For exiting early when no images left to analyze
+import os #Path to source code
+import cv2 #Image Analysis
+import numpy as np #For K-means formatting conversions to required inputs 
+#import matplotlib.pyplot as plt  #For displaying images (DEBUGGING)
+from pathlib import Path #For traversing workingDirectory, and for recursive file searching
+import time #Gets time of Day
+import FileHandler #Check if imageList files exist
 
 image_paths = list()
 
@@ -38,6 +39,10 @@ for scanned in scannedImagesList:
     if len(scannedImagesList) < 10:
         print("removing item: ", scanned)
     image_paths.remove(scanned)
+
+if len(image_paths) == 0:
+    print("All images have been analyzed, exiting...")
+    sys.exit(11)
 
 if len(scannedImagesList) >= 10:
     print("Removed ", len(scannedImagesList), " items from to-be-scanned list, leaving: ", len(image_paths), " items.")
@@ -126,7 +131,6 @@ for path_num in range(1):
     #kmeans_clustering(image)
     print("The path is: ", utf_path)
     print("Average brightness of image: ", avg_brightness)
-    print("\n")
 
     threshold = 0.46
 
@@ -142,7 +146,7 @@ else:
     FileHandler.write_to_file(darkImagesPath, darkImages)
 
 total_end = time.time()
-print("Time taken: ", total_end-total_start, " secs.")
+print("Time taken: ", total_end-total_start, " secs.\n\n")
 # show the image
 #plt.imshow(segmented_image)
 #plt.show()
