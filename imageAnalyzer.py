@@ -3,7 +3,6 @@
 import os
 import cv2
 import numpy as np
-import statistics
 import matplotlib.pyplot as plt
 from pathlib import Path
 import time
@@ -72,57 +71,61 @@ for path_num in range(1):
             brightness_total += sum(pixel) / white_color
     avg_brightness = brightness_total / pixels_total
 
-    #Convert image to data that can be analyzed
-        # reshape the image to a 2D array of pixels and 3 color values (RGB)
-    pixel_values = image.reshape((-1, 3))
-        # convert to float
-    pixel_values = np.float32(pixel_values)
+    def kmeans_clustering(image):
+        #Convert image to data that can be analyzed
+            # reshape the image to a 2D array of pixels and 3 color values (RGB)
+        pixel_values = image.reshape((-1, 3))
+            # convert to float
+        pixel_values = np.float32(pixel_values)
 
-        # define stopping criteria: 100 iterations or 0.2 Epsilon
-    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.2)
+            # define stopping criteria: 100 iterations or 0.2 Epsilon
+        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.2)
 
-    # Start timer
-    print("Begin Clustering", end='\r')
-    start = time.time()
+        # Start timer
+        print("Begin Clustering", end='\r')
+        start = time.time()
 
-        # number of clusters (K)
-    k = 5
-    _, labels, (centers) = cv2.kmeans(pixel_values, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
+            # number of clusters (K)
+        k = 5
+        _, labels, (centers) = cv2.kmeans(pixel_values, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
 
-    # End Timer and display runtime of command
-    end = time.time()
-    print(k, " Clusters completed in: ",end - start, " seconds.")
+        # End Timer and display runtime of command
+        end = time.time()
+        print(k, " Clusters completed in: ",end - start, " seconds.")
 
-        # convert back to 8 bit values
-    centers = np.uint8(centers)
+            # convert back to 8 bit values
+        centers = np.uint8(centers)
 
-        # flatten the labels array
-    labels = labels.flatten()
+            # flatten the labels array
+        labels = labels.flatten()
 
-        # convert all pixels to the color of the centroids
-    segmented_image = centers[labels.flatten()]
+            # convert all pixels to the color of the centroids
+        segmented_image = centers[labels.flatten()]
 
-    segmented_image = segmented_image.reshape(image.shape)
+        segmented_image = segmented_image.reshape(image.shape)
 
-    # Clean Clustered colors list to only show uniques, will still be 5 colors(theoretically)
-    clustered_colors_list = list()
-    for color in centers[labels.flatten()].tolist():
-        if color not in clustered_colors_list:
-            clustered_colors_list.append(color)
+        # Clean Clustered colors list to only show uniques, will still be 5 colors(theoretically)
+        clustered_colors_list = list()
+        for color in centers[labels.flatten()].tolist():
+            if color not in clustered_colors_list:
+                clustered_colors_list.append(color)
 
-    # Generate brightness ratio for each clustered color
-    brightness_ratio_list = list()
-    for color in clustered_colors_list:
-        this_sum = 0
-        for RGBvalue in color:
-            this_sum += RGBvalue
-        brightness_ratio_list.append(this_sum/white_color)
+        # Generate brightness ratio for each clustered color
+        brightness_ratio_list = list()
+        for color in clustered_colors_list:
+            this_sum = 0
+            for RGBvalue in color:
+                this_sum += RGBvalue
+            brightness_ratio_list.append(this_sum/white_color)
 
-    avg_clust_brightness = (sum(brightness_ratio_list)/k)
+        avg_clust_brightness = (sum(brightness_ratio_list)/k)
+        print("Average brightness of clusters: ", avg_clust_brightness)
 
+        return avg_clust_brightness
+
+    #kmeans_clustering(image)
     print("The path is: ", utf_path)
     print("Average brightness of image: ", avg_brightness)
-    print("Average brightness of clusters: ", avg_clust_brightness)
     print("\n")
 
     threshold = 0.46
